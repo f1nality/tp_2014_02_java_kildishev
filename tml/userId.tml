@@ -1,0 +1,15 @@
+<#import "tml/base.ftl" as b>
+<@b.body title="userId">
+    <div class="form-rounded">
+        <p>UserId: <#if userId??>${userId}<#else>undefined</#if></p>
+        <#if userId??><p><a class="btn btn-primary" href="/signout" role="button">Sign out</a></p></#if> <a class="btn btn-default" href="/" role="button">Home</a>
+    </div>
+
+    <script>
+    function refresh() {
+        location.reload();
+    }
+
+    setInterval(function() { refresh(); }, 1000);
+    </script>
+</@b.body>
