@@ -1,3 +1,5 @@
+package web;
+
 import javax.persistence.*;
 
 /**
@@ -23,15 +25,13 @@ public class Account {
         this.login = login;
         this.password = password;
     }
+
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getLogin() {
+
         return login;
     }
 
@@ -47,3 +47,5 @@ public class Account {
         this.password = password;
     }
 }
+
+

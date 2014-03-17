@@ -1,3 +1,5 @@
+package web;
+
 import org.hibernate.Session;
 
 /**

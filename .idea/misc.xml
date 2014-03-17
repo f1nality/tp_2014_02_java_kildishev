@@ -6,6 +6,9 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OUTPUT_DIRECTORY" value="" />
+  </component>
   <component name="IdProvider" IDEtalkID="9FB934C7B0228860DD76924D24C67400" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">

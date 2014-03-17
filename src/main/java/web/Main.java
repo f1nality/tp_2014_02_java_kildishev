@@ -1,3 +1,5 @@
+package web;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -10,6 +12,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
+        Server server = runWebServer();
+
+        server.join();
+    }
+
+    public static Server runWebServer() throws Exception {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         Frontend frontend = new Frontend();
         context.addServlet(new ServletHolder(frontend), "/*");
@@ -24,6 +32,7 @@ public class Main {
         server.setHandler(handlers);
 
         server.start();
-        server.join();
+
+        return server;
     }
 }
