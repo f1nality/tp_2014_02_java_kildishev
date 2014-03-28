@@ -1,7 +1,8 @@
-package web;
+package web.frontend;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import web.frontend.PageGenerator;
 
 import java.util.HashMap;
 

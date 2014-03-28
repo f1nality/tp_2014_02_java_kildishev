@@ -1,11 +1,14 @@
-package web;
+package web.frontend;
 
+import web.db.AccountService;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,21 +99,23 @@ public class Frontend extends HttpServlet {
         Map<String, Object> pageVariables = new HashMap<>();
 
         pageVariables.put("userId", userId);
+        pageVariables.put("serverTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
         renderPage(response, "userId.tml", pageVariables);
     }
 
     private void doSignIn(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String login = request.getParameter("login");
         String password = request.getParameter("password");
-        Account account = AccountDAO.getAccountByLogin(login);
 
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        if (account != null && account.getPassword().equals(password)) {
+        Integer userId = AccountService.getUserId(login, password);
+
+        if (userId != -1) {
             HttpSession session = request.getSession();
 
-            session.setAttribute("userId", account.getId());
+            session.setAttribute("userId", userId);
             response.sendRedirect("/userId");
         } else {
             Map<String, Object> pageVariables = new HashMap<>();
@@ -124,20 +129,19 @@ public class Frontend extends HttpServlet {
         String login = request.getParameter("login");
         String password = request.getParameter("password");
         String passwordRepeat = request.getParameter("password-repeat");
-        Account account = AccountDAO.getAccountByLogin(login);
 
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
         Map<String, Object> pageVariables = new HashMap<>();
 
-        if (account != null) {
+        if (AccountService.accountExists(login)) {
             pageVariables.put("error", "Account with such login already exists");
             renderPage(response, "signup.tml", pageVariables);
         } else if (!password.equals(passwordRepeat)) {
             pageVariables.put("error", "Passwords do not match");
             renderPage(response, "signup.tml", pageVariables);
-        } else if (!AccountDAO.addAccount(login, password)) {
+        } else if (!AccountService.signUp(login, password)) {
             pageVariables.put("error", "Query error");
             renderPage(response, "signup.tml", pageVariables);
         } else {

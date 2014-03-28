@@ -1,4 +1,4 @@
-package web;
+package web.db;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;

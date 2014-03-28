@@ -1,4 +1,4 @@
-package web;
+package web.db;
 
 import javax.persistence.*;
 

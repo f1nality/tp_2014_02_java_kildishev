@@ -1,10 +1,8 @@
-package web;
+package web.db;
 
+import com.sun.jna.platform.win32.Secur32;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author d.kildishev
@@ -19,6 +17,8 @@ public class AccountDAO extends DAO {
             session.beginTransaction();
             account = (Account)session.createCriteria(Account.class).add(Restrictions.eq("login", login)).uniqueResult();
             session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
         } finally {
             if (session != null && session.isOpen()) {
                 session.close();
@@ -38,6 +38,7 @@ public class AccountDAO extends DAO {
             session.save(new Account(login, password));
             session.getTransaction().commit();
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             result = false;
         } finally {
             if (session != null && session.isOpen()) {
@@ -59,6 +60,7 @@ public class AccountDAO extends DAO {
             session.delete(account);
             session.getTransaction().commit();
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             result = false;
         } finally {
             if (session != null && session.isOpen()) {

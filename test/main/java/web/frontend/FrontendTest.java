@@ -1,9 +1,11 @@
-package web;
+package web.frontend;
 
 import junit.framework.Assert;
 import org.eclipse.jetty.http.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;
+import web.db.AccountService;
+import web.frontend.Frontend;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -99,7 +101,7 @@ public class FrontendTest {
         sendRequest(request, response, "/signup", HttpMethod.POST);
         verify(response).sendRedirect("/signin");
 
-        AccountDAO.removeAccount("test2");
+        AccountService.removeAccount("test2");
     }
 
     private void testRegistrationFail() throws Exception {
