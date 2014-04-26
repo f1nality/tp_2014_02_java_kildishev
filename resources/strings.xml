@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings class="com.java.web.">
+	<string name="accounts_exists">Account with such login already exists</string>
+</strings>

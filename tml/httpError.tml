@@ -1,4 +1,4 @@
-<#import "tml/base.ftl" as b>
+<#import "/tml/base.ftl" as b>
 <@b.body title="HTTP ERROR">
     <div class="container">
         <#if errorMsg??>${errorMsg}</#if>

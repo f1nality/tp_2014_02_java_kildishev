@@ -1,6 +1,7 @@
 package web.frontend;
 
-import web.db.AccountService;
+import web.messagesystem.*;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,15 +16,75 @@ import java.util.Map;
 /**
  * @author d.kildishev
  */
-public class Frontend extends HttpServlet {
+public class Frontend extends HttpServlet implements Abonent, Runnable {
+    private MessageSystem ms;
+    private Address address = new Address();
+    private Map<String, UserSession> sessionIdToUserSession = new HashMap<>();
+    private int handleCount = 0;
+    private Object lock = new Object();
+
+    public Frontend(MessageSystem ms) {
+        this.ms = ms;
+
+        ms.addService(this);
+        ms.getAddressService().setFrontendService(getAddress());
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setId(String sessionId, Long userId) {
+        UserSession userSession = sessionIdToUserSession.get(sessionId);
+
+        if (userSession == null) {
+            System.out.append("Can't find user session for: ").append(sessionId);
+            return;
+        }
+
+        if (userId == -1) {
+            sessionIdToUserSession.remove(sessionId);
+            return;
+        }
+
+        userSession.setUserId(userId);
+    }
+
+    public void signUpUser(String sessionId, int code) {
+        UserSession userSession = sessionIdToUserSession.get(sessionId);
+
+        if (userSession == null) {
+            System.out.append("Can't find user session for: ").append(sessionId);
+            return;
+        }
+
+        userSession.setRegistrationCode(code);
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (lock) {
+                System.out.println("handleCount=" + handleCount);
+            }
+
+            try {
+                ms.execForAbonent(this);
+                Thread.sleep(5000);
+            } catch (InterruptedException e) { }
+        }
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        switch (request.getRequestURI())
-        {
+        switch (request.getRequestURI()) {
             case "/signin":
                 doSignInPage(request, response);
                 break;
             case "/signup":
                 doSignUpPage(request, response);
+                break;
+            case "/signupStatus":
+                doSignUpStatusPage(request, response);
                 break;
             case "/signout":
                 doSignOutPage(request, response);
@@ -37,8 +98,7 @@ public class Frontend extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        switch (request.getRequestURI())
-        {
+        switch (request.getRequestURI()) {
             case "/signin":
                 doSignIn(request, response);
                 break;
@@ -51,7 +111,7 @@ public class Frontend extends HttpServlet {
     }
 
     private void doSignInPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = getUserId(request);
+        Long userId = getUserId(request);
 
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
@@ -66,17 +126,63 @@ public class Frontend extends HttpServlet {
     }
 
     private void doSignUpPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = getUserId(request);
-
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
         Map<String, Object> pageVariables = new HashMap<>();
 
-        if (userId != null) {
-            response.sendRedirect("/userId");
+        HttpSession session = request.getSession();
+        UserSession userSession = sessionIdToUserSession.get(session.getId());
+
+        if (userSession != null) {
+            if (userSession.getUserId() != null) {
+                response.sendRedirect("/userId");
+                return;
+            }
+
+            if (userSession.isRegistering()) {
+                switch (userSession.getRegistrationCode()) {
+                    case 0:
+                        response.sendRedirect("/signin");
+                        return;
+                    case 1:
+                        pageVariables.put("error", "Account with such login already exists");
+                        sessionIdToUserSession.remove(session.getId());
+                        break;
+                    case 2:
+                        pageVariables.put("error", "Server Maintenance");
+                        sessionIdToUserSession.remove(session.getId());
+                        break;
+                }
+
+                userSession.setRegistering(false);
+            }
+        }
+
+        renderPage(response, "signup.tml", pageVariables);
+    }
+
+    private void doSignUpStatusPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html;charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        Map<String, Object> pageVariables = new HashMap<>();
+
+        HttpSession session = request.getSession();
+        UserSession userSession = sessionIdToUserSession.get(session.getId());
+
+        if (userSession == null) {
+            response.sendRedirect("/signup");
+            return;
+        }
+
+        if (userSession.isRegistering() && userSession.getRegistrationCode() == -1) {
+            pageVariables.put("status", "waiting for registration...");
+            pageVariables.put("serverTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
+
+            renderPage(response, "signupStatus.tml", pageVariables);
         } else {
-            renderPage(response, "signup.tml", pageVariables);
+            response.sendRedirect("/signup");
         }
     }
 
@@ -86,20 +192,35 @@ public class Frontend extends HttpServlet {
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        session.removeAttribute("userId");
+        if (sessionIdToUserSession.containsKey(session.getId())) {
+            sessionIdToUserSession.remove(session.getId());
+        }
+
         response.sendRedirect("/signin");
     }
 
     private void doUserIdPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = getUserId(request);
-
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
         Map<String, Object> pageVariables = new HashMap<>();
 
-        pageVariables.put("userId", userId);
+        HttpSession session = request.getSession();
+        UserSession userSession = sessionIdToUserSession.get(session.getId());
+
+        if (userSession != null) {
+            if (userSession.getUserId() == null) {
+                pageVariables.put("userId", "waiting for authorization...");
+            } else if (userSession.getUserId() == -2) {
+                pageVariables.put("userId", "Server Maintenance");
+                sessionIdToUserSession.remove(session.getId());
+            } else  {
+                pageVariables.put("userId", userSession.getUserId());
+            }
+        }
+
         pageVariables.put("serverTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
+
         renderPage(response, "userId.tml", pageVariables);
     }
 
@@ -110,19 +231,21 @@ public class Frontend extends HttpServlet {
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        Integer userId = AccountService.getUserId(login, password);
+        String sessionId = request.getSession().getId();
+        UserSession userSession = new UserSession(sessionId, login, ms.getAddressService());
 
-        if (userId != -1) {
-            HttpSession session = request.getSession();
+        sessionIdToUserSession.put(sessionId, userSession);
 
-            session.setAttribute("userId", userId);
-            response.sendRedirect("/userId");
-        } else {
-            Map<String, Object> pageVariables = new HashMap<>();
+        Address frontendAddress = getAddress();
+        Address accountServiceAddress = userSession.getAccountService();
 
-            pageVariables.put("error", "Wrong credentials");
-            renderPage(response, "signin.tml", pageVariables);
+        ms.sendMessage(new MsgGetUserId(frontendAddress, accountServiceAddress, login, password, sessionId));
+
+        synchronized (lock) {
+            ++handleCount;
         }
+
+        response.sendRedirect("/userId");
     }
 
     private void doSignUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -135,17 +258,27 @@ public class Frontend extends HttpServlet {
 
         Map<String, Object> pageVariables = new HashMap<>();
 
-        if (AccountService.accountExists(login)) {
-            pageVariables.put("error", "Account with such login already exists");
-            renderPage(response, "signup.tml", pageVariables);
-        } else if (!password.equals(passwordRepeat)) {
+        if (!password.equals(passwordRepeat)) {
             pageVariables.put("error", "Passwords do not match");
             renderPage(response, "signup.tml", pageVariables);
-        } else if (!AccountService.signUp(login, password)) {
-            pageVariables.put("error", "Query error");
-            renderPage(response, "signup.tml", pageVariables);
         } else {
-            response.sendRedirect("/signin");
+            String sessionId = request.getSession().getId();
+            UserSession userSession = new UserSession(sessionId, login, ms.getAddressService());
+
+            userSession.setRegistering(true);
+            userSession.setRegistrationCode(-1);
+            sessionIdToUserSession.put(sessionId, userSession);
+
+            Address frontendAddress = getAddress();
+            Address accountServiceAddress = userSession.getAccountService();
+
+                ms.sendMessage(new MsgSignUpUser(frontendAddress, accountServiceAddress, login, password, sessionId));
+
+            synchronized (lock) {
+                ++handleCount;
+            }
+
+            response.sendRedirect("/signupStatus");
         }
     }
 
@@ -163,9 +296,14 @@ public class Frontend extends HttpServlet {
         response.getWriter().println(PageGenerator.getPage(template, pageVariables));
     }
 
-    private Integer getUserId(HttpServletRequest request) {
+    private Long getUserId(HttpServletRequest request) {
         HttpSession session = request.getSession();
+        UserSession userSession = sessionIdToUserSession.get(session.getId());
 
-        return (Integer)session.getAttribute("userId");
+        if (userSession == null) {
+            return null;
+        }
+
+        return userSession.getUserId();
     }
 }

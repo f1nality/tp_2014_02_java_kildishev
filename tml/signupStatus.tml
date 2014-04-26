@@ -1,10 +1,9 @@
 <#import "/tml/base.ftl" as b>
-<@b.body title="userId">
+<@b.body title="signupStatus">
     <div class="form-rounded">
-        <p>UserId: <span id="userId"><#if userId??>${userId}<#else>not authorized</#if></span></p>
+        <p>Status: <#if status??>${status}<#else>none</#if></p>
         <p>ServerTime: ${serverTime}</p>
         <p>ClientTime: <span id="clientTime"></span></p>
-        <#if userId??><p><a class="btn btn-primary" href="/signout" role="button">Sign out</a></p></#if>
         <a class="btn btn-default" href="/" role="button">Home</a>
     </div>
 

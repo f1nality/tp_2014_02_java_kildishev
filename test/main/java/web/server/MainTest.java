@@ -3,7 +3,6 @@ package web.server;
 import junit.framework.Assert;
 import org.eclipse.jetty.server.Server;
 import org.junit.Test;
-import web.server.Main;
 
 /**
  * @author d.kildishev

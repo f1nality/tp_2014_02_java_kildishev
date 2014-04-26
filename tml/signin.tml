@@ -1,4 +1,4 @@
-<#import "tml/base.ftl" as b>
+<#import "/tml/base.ftl" as b>
 <@b.body title="Sign In">
     <form class="form-horizontal form-rounded" method="POST">
         <div class="control-group">
