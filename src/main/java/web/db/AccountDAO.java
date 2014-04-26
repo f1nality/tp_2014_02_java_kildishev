@@ -1,45 +1,51 @@
 package web.db;
 
-import com.sun.jna.platform.win32.Secur32;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
 /**
  * @author d.kildishev
  */
-public class AccountDAO extends DAO {
-    public static Account getAccountByLogin(String login) {
+public class AccountDAO {
+    private SessionFactory factory = null;
+
+    public AccountDAO() {
+    }
+
+    public void setFactory(SessionFactory factory) {
+        this.factory = factory;
+    }
+
+    public AccountDataSet getAccountByLogin(String login) {
         Session session = null;
-        Account account = null;
+        AccountDataSet accountDataSet = null;
 
         try {
-            session = openSession();
+            session = factory.openSession();
             session.beginTransaction();
-            account = (Account)session.createCriteria(Account.class).add(Restrictions.eq("login", login)).uniqueResult();
+            accountDataSet = (AccountDataSet)session.createCriteria(AccountDataSet.class).add(Restrictions.eq("login", login)).uniqueResult();
             session.getTransaction().commit();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
         } finally {
             if (session != null && session.isOpen()) {
                 session.close();
             }
         }
 
-        return account;
+        return accountDataSet;
     }
 
-    public static boolean addAccount(String login, String password) {
+    public boolean addAccount(String login, String password) {
         Session session = null;
         boolean result = true;
 
         try {
-            session = openSession();
+            session = factory.openSession();
             session.beginTransaction();
-            session.save(new Account(login, password));
+            session.save(new AccountDataSet(login, password));
             session.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace(System.err);
-            result = false;
+            e.printStackTrace();
         } finally {
             if (session != null && session.isOpen()) {
                 session.close();
@@ -49,19 +55,18 @@ public class AccountDAO extends DAO {
         return result;
     }
 
-    public static boolean removeAccount(String login) {
+    public boolean removeAccount(String login) {
         Session session = null;
         boolean result = true;
 
         try {
-            session = openSession();
+            session = factory.openSession();
             session.beginTransaction();
-            Account account = (Account)session.createCriteria(Account.class).add(Restrictions.eq("login", login)).uniqueResult();
-            session.delete(account);
+            AccountDataSet accountDataSet = (AccountDataSet)session.createCriteria(AccountDataSet.class).add(Restrictions.eq("login", login)).uniqueResult();
+            session.delete(accountDataSet);
             session.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace(System.err);
-            result = false;
+            e.printStackTrace();
         } finally {
             if (session != null && session.isOpen()) {
                 session.close();

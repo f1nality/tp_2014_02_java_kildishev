@@ -1,5 +1,13 @@
-<#import "/tml/base.ftl" as b>
-<@b.body title="Sign Up">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java  - Sign In</title>
+    <link href="/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="/css/style.css" rel="stylesheet" media="screen">
+</head>
+<body>
+    <div class="container">
+        <h1>ru.tech-mail.java</h1>
     <form class="form-horizontal form-rounded" method="POST">
         <div class="control-group">
             <label class="control-label">Login</label>
@@ -14,16 +22,15 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label">Repeat Password</label>
             <div class="controls">
-                <input type="password" name="password-repeat">
-            </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn btn-primary">Sign Up</button> <a class="btn btn-default" href="/" role="button">Home</a>
-                <#if error??><p>${error}</p></#if>
+                <button type="submit" class="btn btn-primary">Sign In</button> <a class="btn btn-default" href="/" role="button">Home</a>
+                <p>Wrong credentials</p>
             </div>
         </div>
     </form>
-</@b.body>
+    </div>
+
+    <script src="/js/jquery-2.1.0.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+</body>
+</html>
