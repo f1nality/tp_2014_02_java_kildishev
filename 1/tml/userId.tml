@@ -1,0 +1,32 @@
+<#import "/tml/base.ftl" as b>
+<@b.body title="userId">
+    <div class="form-rounded">
+        <p>UserId: <span id="userId"><#if userId??>${userId}<#else>not authorized</#if></span></p>
+        <p>ServerTime: ${serverTime}</p>
+        <p>ClientTime: <span id="clientTime"></span></p>
+        <#if userId??><p><a class="btn btn-primary" href="/signout" role="button">Sign out</a></p></#if>
+        <a class="btn btn-default" href="/" role="button">Home</a>
+    </div>
+
+    <script>
+    function setClientTime() {
+        var d = new Date();
+        var hours = d.getHours();
+        var minutes = d.getMinutes();
+        var seconds = d.getSeconds();
+
+        if (hours < 10) hours = '0' + hours;
+        if (minutes < 10) minutes = '0' + minutes;
+        if (seconds < 10) seconds = '0' + seconds;
+
+        document.getElementById("clientTime").innerText = hours + ":" + minutes + ":" + seconds;
+    }
+
+    function refresh() {
+        location.reload();
+    }
+
+    setClientTime();
+    setInterval(function() { refresh(); }, 1000);
+    </script>
+</@b.body>

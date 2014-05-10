@@ -1,0 +1,23 @@
+<#import "/tml/base.ftl" as b>
+<@b.body title="Sign In">
+    <form class="form-horizontal form-rounded" method="POST">
+        <div class="control-group">
+            <label class="control-label">Login</label>
+            <div class="controls">
+                <input type="text" name="login">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Password</label>
+            <div class="controls">
+                <input type="password" name="password">
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-primary">Sign In</button> <a class="btn btn-default" href="/" role="button">Home</a>
+                <#if error??><p>${error}</p></#if>
+            </div>
+        </div>
+    </form>
+</@b.body>
