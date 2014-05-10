@@ -1,7 +1,7 @@
 package web.frontend;
 
-import vfs.VFS;
-import vfs.VFSImpl;
+import web.vfs.VFS;
+import web.vfs.VFSImpl;
 
 import java.util.Iterator;
 
