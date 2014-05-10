@@ -1,15 +1,11 @@
 package web.accounts;
 
-import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import web.accounts.AccountService;
 import web.db.AccountDAO;
-import web.db.AccountDataSet;
 import web.db.HibernateUtil;
 import web.messagesystem.MessageSystem;
 
@@ -50,7 +46,7 @@ public class AccountServiceTest {
     @Test
     public void testSignUpSuccess() throws Exception {
         Assert.assertFalse(accountService.accountExists("newtest"));
-        Assert.assertTrue(accountService.signUp("newtest", "test") == 0);
+        Assert.assertTrue(accountService.signUp("newtest", "test") == SignUpCode.OK);
     }
 
     @Test

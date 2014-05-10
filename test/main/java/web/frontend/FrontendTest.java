@@ -1,6 +1,6 @@
 package web.frontend;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.eclipse.jetty.http.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +49,7 @@ public class FrontendTest {
 
         when(session.getAttribute("userId")).thenReturn(null);
         when(request.getSession()).thenReturn(session);
+        when(session.getId()).thenReturn("test_session_id");
 
         String output = sendRequest(request, response, url, HttpMethod.GET);
 

@@ -1,7 +1,7 @@
 package web.server;
 
-import junit.framework.Assert;
 import org.eclipse.jetty.server.Server;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

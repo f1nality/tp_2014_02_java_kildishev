@@ -1,6 +1,6 @@
 package web.selenium;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.eclipse.jetty.server.Server;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,18 +24,6 @@ public class FunctionalTest {
     @Before
     public void setUp() throws Exception {
         server = Main.runWebServer();
-
-        SessionFactory factory = HibernateUtil.getSessionFactory("hibernate-test.cfg.xml");
-        Session session = factory.openSession();
-
-        session.beginTransaction();
-        session.createSQLQuery("TRUNCATE TABLE accounts").executeUpdate();
-        session.getTransaction().commit();
-
-        AccountDAO dao = new AccountDAO();
-
-        dao.setFactory(factory);
-        dao.addAccount("test", "test");
     }
 
     @After
@@ -69,7 +57,7 @@ public class FunctionalTest {
             Thread.sleep(1000);
             driver.navigate().refresh();
         }
-
+System.out.println(userId);
         try {
             int parsedUserId = Integer.parseInt(userId);
             Assert.assertTrue(parsedUserId > 0);

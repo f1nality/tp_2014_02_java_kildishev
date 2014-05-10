@@ -1,4 +1,4 @@
-package vfs;
+package web.vfs;
 
 import java.util.Iterator;
 

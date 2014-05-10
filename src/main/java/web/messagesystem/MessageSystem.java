@@ -1,11 +1,14 @@
 package web.messagesystem;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MessageSystem {
+    @VisibleForTesting
 	private Map<Address, ConcurrentLinkedQueue<Msg>> messages = new HashMap<Address, ConcurrentLinkedQueue<Msg>>();
 	private AddressService addressService = new AddressService();
 	
@@ -30,7 +33,7 @@ public class MessageSystem {
 			message.exec(abonent);
 		}
 	}
-	
+
 	public AddressService getAddressService() {
 		return addressService;
 	}

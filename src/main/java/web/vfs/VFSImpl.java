@@ -1,4 +1,4 @@
-package vfs;
+package web.vfs;
 
 import org.apache.commons.io.IOUtils;
 
@@ -22,27 +22,34 @@ public class VFSImpl implements VFS {
 		return new FileIterator(startDir);
 	}
 
-	private class FileIterator implements Iterator<String>{
+	private class FileIterator implements Iterator<String> {
 		private Queue<File> files = new LinkedList<File>();
 		
 		public FileIterator(String path){
 			files.add(new File(root + path));
+            peek();
 		}
 		
 		public boolean hasNext() {			
 			return !files.isEmpty();
 		}
 
-		public String next() {
-			File file = files.peek();
+        private File peek() {
+            File file = files.poll();
 
-			if (file.isDirectory()){
-				for(File subFile : file.listFiles()){
-					files.add(subFile);
-				}
-			}
-			
-			return files.poll().getAbsolutePath();
+            if (file.isDirectory()) {
+                for (File subFile : file.listFiles()) {
+                    files.add(subFile);
+                }
+            }
+
+            return file;
+        }
+
+		public String next() {
+			File file = peek();
+
+            return file.getPath().substring(root.length());
 		}
 
 		public void remove() {			
@@ -65,7 +72,7 @@ public class VFSImpl implements VFS {
         byte[] result = null;
 
         try {
-            FileInputStream fileInputStream = new FileInputStream(file);
+            FileInputStream fileInputStream = new FileInputStream(root + file);
 
             if (encoding != null) {
                 inputStream = new InputStreamReader(fileInputStream, "UTF-8");
@@ -75,6 +82,7 @@ public class VFSImpl implements VFS {
 
             result = IOUtils.toByteArray(inputStream);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         } finally {
             if (inputStream != null) {
@@ -91,7 +99,6 @@ public class VFSImpl implements VFS {
 	public byte[] getBytes(String file) {
         return getBytes(file, null);
     }
-
 
 	@Override
 	public String getUFT8Text(String file) {

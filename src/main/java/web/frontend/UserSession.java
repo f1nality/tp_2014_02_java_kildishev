@@ -1,5 +1,6 @@
 package web.frontend;
 
+import web.accounts.SignUpCode;
 import web.messagesystem.Address;
 import web.messagesystem.AddressService;
 
@@ -9,7 +10,7 @@ public class UserSession {
     private String sessionId;
     private Long userId;
     private Boolean isRegistering = false;
-    private int registrationCode;
+    private SignUpCode registrationCode;
 
     public UserSession(String sessionId, String name, AddressService addressService) {
         this.sessionId = sessionId;
@@ -45,11 +46,11 @@ public class UserSession {
         this.isRegistering = isRegistering;
     }
 
-    public int getRegistrationCode() {
+    public SignUpCode getRegistrationCode() {
         return registrationCode;
     }
 
-    public void setRegistrationCode(int registrationCode) {
+    public void setRegistrationCode(SignUpCode registrationCode) {
         this.registrationCode = registrationCode;
     }
 }

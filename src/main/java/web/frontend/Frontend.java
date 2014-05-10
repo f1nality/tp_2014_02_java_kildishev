@@ -1,5 +1,6 @@
 package web.frontend;
 
+import web.accounts.SignUpCode;
 import web.messagesystem.*;
 
 import javax.servlet.ServletException;
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author d.kildishev
@@ -19,7 +21,7 @@ import java.util.Map;
 public class Frontend extends HttpServlet implements Abonent, Runnable {
     private MessageSystem ms;
     private Address address = new Address();
-    private Map<String, UserSession> sessionIdToUserSession = new HashMap<>();
+    private Map<String, UserSession> sessionIdToUserSession = new ConcurrentHashMap<>();
     private int handleCount = 0;
     private Object lock = new Object();
 
@@ -50,7 +52,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         userSession.setUserId(userId);
     }
 
-    public void signUpUser(String sessionId, int code) {
+    public void signUpUser(String sessionId, SignUpCode code) {
         UserSession userSession = sessionIdToUserSession.get(sessionId);
 
         if (userSession == null) {
@@ -76,6 +78,8 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+
         switch (request.getRequestURI()) {
             case "/signin":
                 doSignInPage(request, response);
@@ -95,6 +99,10 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
             default:
                 doNotFoundError(response);
         }
+
+        synchronized (lock) {
+            ++handleCount;
+        }
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -107,6 +115,10 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
                 break;
             default:
                 doNotFoundError(response);
+        }
+
+        synchronized (lock) {
+            ++handleCount;
         }
     }
 
@@ -142,14 +154,14 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
 
             if (userSession.isRegistering()) {
                 switch (userSession.getRegistrationCode()) {
-                    case 0:
+                    case OK:
                         response.sendRedirect("/signin");
                         return;
-                    case 1:
+                    case ALREADY_EXISTS:
                         pageVariables.put("error", "Account with such login already exists");
                         sessionIdToUserSession.remove(session.getId());
                         break;
-                    case 2:
+                    case DB_ERROR:
                         pageVariables.put("error", "Server Maintenance");
                         sessionIdToUserSession.remove(session.getId());
                         break;
@@ -176,7 +188,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
             return;
         }
 
-        if (userSession.isRegistering() && userSession.getRegistrationCode() == -1) {
+        if (userSession.isRegistering() && userSession.getRegistrationCode() == SignUpCode.PENDING) {
             pageVariables.put("status", "waiting for registration...");
             pageVariables.put("serverTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
 
@@ -204,7 +216,6 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         response.setStatus(HttpServletResponse.SC_OK);
 
         Map<String, Object> pageVariables = new HashMap<>();
-
         HttpSession session = request.getSession();
         UserSession userSession = sessionIdToUserSession.get(session.getId());
 
@@ -220,7 +231,6 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         }
 
         pageVariables.put("serverTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
-
         renderPage(response, "userId.tml", pageVariables);
     }
 
@@ -240,10 +250,6 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
         Address accountServiceAddress = userSession.getAccountService();
 
         ms.sendMessage(new MsgGetUserId(frontendAddress, accountServiceAddress, login, password, sessionId));
-
-        synchronized (lock) {
-            ++handleCount;
-        }
 
         response.sendRedirect("/userId");
     }
@@ -266,17 +272,13 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
             UserSession userSession = new UserSession(sessionId, login, ms.getAddressService());
 
             userSession.setRegistering(true);
-            userSession.setRegistrationCode(-1);
+            userSession.setRegistrationCode(SignUpCode.PENDING);
             sessionIdToUserSession.put(sessionId, userSession);
 
             Address frontendAddress = getAddress();
             Address accountServiceAddress = userSession.getAccountService();
 
-                ms.sendMessage(new MsgSignUpUser(frontendAddress, accountServiceAddress, login, password, sessionId));
-
-            synchronized (lock) {
-                ++handleCount;
-            }
+            ms.sendMessage(new MsgSignUpUser(frontendAddress, accountServiceAddress, login, password, sessionId));
 
             response.sendRedirect("/signupStatus");
         }

@@ -1,6 +1,7 @@
 package web.messagesystem;
 
 import web.accounts.AccountService;
+import web.accounts.SignUpCode;
 
 public class MsgSignUpUser extends MsgToAccountService {
 	private String name;
@@ -16,10 +17,9 @@ public class MsgSignUpUser extends MsgToAccountService {
 
 	void exec(AccountService accountService) {
         if (accountService.accountExists(name)) {
-            accountService.getMessageSystem().sendMessage(new MsgSignUpStatus(getTo(), getFrom(), sessionId, 1));
+            accountService.getMessageSystem().sendMessage(new MsgSignUpStatus(getTo(), getFrom(), sessionId, SignUpCode.ALREADY_EXISTS));
         } else {
-            int code = accountService.signUp(name, password);
-            accountService.getMessageSystem().sendMessage(new MsgSignUpStatus(getTo(), getFrom(), sessionId, code));
+            accountService.getMessageSystem().sendMessage(new MsgSignUpStatus(getTo(), getFrom(), sessionId, accountService.signUp(name, password)));
         }
 	}
 }

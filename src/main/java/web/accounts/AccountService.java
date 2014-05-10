@@ -15,7 +15,7 @@ public class AccountService implements Abonent, Runnable {
     private Address address = new Address();
     private MessageSystem ms;
     private AccountDAO accountDAO = null;
-    private boolean dbWorking = false;
+    private boolean isDBWorking = false;
     private String dbConfig;
 
     public AccountService(MessageSystem ms, String dbConfig) {
@@ -30,7 +30,7 @@ public class AccountService implements Abonent, Runnable {
 
     public void run() {
         while(true) {
-            if (!dbWorking) {
+            if (!isDBWorking) {
                 recreateFactory();
             }
 
@@ -42,7 +42,7 @@ public class AccountService implements Abonent, Runnable {
     public void recreateFactory() {
         try {
             accountDAO.setFactory(getSessionFactory());
-            dbWorking = true;
+            isDBWorking = true;
         } catch (JDBCConnectionException ignored) { }
     }
 
@@ -72,7 +72,7 @@ public class AccountService implements Abonent, Runnable {
         try {
             accountDataSet = accountDAO.getAccountByLogin(login);
         } catch (JDBCConnectionException e) {
-            dbWorking = false;
+            isDBWorking = false;
             return -2L;
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,7 +92,7 @@ public class AccountService implements Abonent, Runnable {
             accountDataSet = accountDAO.getAccountByLogin(login);
         } catch (JDBCConnectionException e) {
             e.printStackTrace();
-            dbWorking = false;
+            isDBWorking = false;
             return false;
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,26 +101,26 @@ public class AccountService implements Abonent, Runnable {
         return accountDataSet != null;
     }
 
-    public int signUp(String login, String password) {
+    public SignUpCode signUp(String login, String password) {
         try {
             accountDAO.addAccount(login, password);
         } catch (JDBCConnectionException e) {
-            dbWorking = false;
-            return 2;
+            isDBWorking = false;
+            return SignUpCode.DB_ERROR;
         } catch (Exception e) {
             e.printStackTrace();
-            dbWorking = false;
-            return 2;
+            isDBWorking = false;
+            return SignUpCode.DB_ERROR;
         }
 
-        return 0;
+        return SignUpCode.OK;
     }
 
     public boolean removeAccount(String login) {
         try {
             return accountDAO.removeAccount(login);
         } catch (JDBCConnectionException e) {
-            dbWorking = false;
+            isDBWorking = false;
             return false;
         } catch (Exception e) {
             e.printStackTrace();
