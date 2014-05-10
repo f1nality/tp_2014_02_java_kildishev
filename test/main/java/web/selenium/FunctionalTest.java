@@ -1,9 +1,8 @@
 package web.selenium;
 
+import org.eclipse.jetty.server.ServerConnector;
 import org.junit.Assert;
 import org.eclipse.jetty.server.Server;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +10,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-import web.db.AccountDAO;
-import web.db.HibernateUtil;
 import web.server.Main;
 
 /**
@@ -24,6 +21,8 @@ public class FunctionalTest {
     @Before
     public void setUp() throws Exception {
         server = Main.runWebServer();
+
+        Assert.assertNotNull(server);
     }
 
     @After
@@ -34,8 +33,9 @@ public class FunctionalTest {
     @Test
     public void testSignInWithSelenium() throws Exception {
         WebDriver driver = new HtmlUnitDriver();
+        int port = ((ServerConnector)server.getConnectors()[0]).getLocalPort();
 
-        driver.get("http://localhost:8080/signin");
+        driver.get("http://localhost:" + port + "/signin");
 
         WebElement element = driver.findElement(By.name("login"));
         driver.findElement(By.name("password")).sendKeys("test");
@@ -57,7 +57,7 @@ public class FunctionalTest {
             Thread.sleep(1000);
             driver.navigate().refresh();
         }
-System.out.println(userId);
+
         try {
             int parsedUserId = Integer.parseInt(userId);
             Assert.assertTrue(parsedUserId > 0);
