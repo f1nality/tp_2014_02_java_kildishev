@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author d.kildishev
@@ -22,8 +23,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     private MessageSystem ms;
     private Address address = new Address();
     private Map<String, UserSession> sessionIdToUserSession = new ConcurrentHashMap<>();
-    private int handleCount = 0;
-    private Object lock = new Object();
+    private AtomicInteger handleCount = new AtomicInteger(0);
 
     public Frontend(MessageSystem ms) {
         this.ms = ms;
@@ -66,9 +66,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
     @Override
     public void run() {
         while (true) {
-            synchronized (lock) {
-                System.out.println("handleCount=" + handleCount);
-            }
+            System.out.println("handleCount=" + handleCount);
 
             try {
                 ms.execForAbonent(this);
@@ -100,9 +98,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
                 doNotFoundError(response);
         }
 
-        synchronized (lock) {
-            ++handleCount;
-        }
+        handleCount.incrementAndGet();
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -117,9 +113,7 @@ public class Frontend extends HttpServlet implements Abonent, Runnable {
                 doNotFoundError(response);
         }
 
-        synchronized (lock) {
-            ++handleCount;
-        }
+        handleCount.incrementAndGet();
     }
 
     private void doSignInPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

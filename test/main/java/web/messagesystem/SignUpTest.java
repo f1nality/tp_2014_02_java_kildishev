@@ -45,7 +45,7 @@ public class SignUpTest extends MessageSystemTest {
             } catch (WantedButNotInvoked e) { }
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) { }
         }
 

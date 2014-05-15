@@ -13,11 +13,12 @@ import java.util.Map;
 public class XmlClassParserHandler extends DefaultHandler {
     private CurrentTag currentTag = CurrentTag.UNDEFINED;
     private String currentFieldName = null;
-    private final String CLASS_TAG = "class";
-    private final String FIELDS_TAG = "fields";
-    private final String FIELD_TAG = "field";
-    private final String CLASS_NAME_ATTRIBUTE = "name";
-    private Map<String, String> fields = new HashMap<>();
+    private static final String CLASS_TAG = "class";
+    private static final String FIELDS_TAG = "fields";
+    private static final String FIELD_TAG = "field";
+    private static final String CLASS_NAME_ATTRIBUTE = "name";
+    private static final String FIELD_NAME_ATTRIBUTE = "name";
+    private final Map<String, String> fields = new HashMap<>();
     private String className = null;
     private enum CurrentTag {
         UNDEFINED,
@@ -33,28 +34,44 @@ public class XmlClassParserHandler extends DefaultHandler {
     public Map<String, String> getFields() {
         return fields;
     }
-
+//todo:add test
     @Override
-    public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
-        if (currentTag == CurrentTag.UNDEFINED && qName.equals(CLASS_TAG) && atts.getValue(CLASS_NAME_ATTRIBUTE) != null) {
-            className = atts.getValue(CLASS_NAME_ATTRIBUTE);
+    public void startElement(String namespaceURI, String localName, String tag, Attributes attributes) throws SAXException {
+        if (isValidClassTag(tag, attributes)) {
+            className = attributes.getValue(CLASS_NAME_ATTRIBUTE);
             currentTag = CurrentTag.CLASS;
-        } else if (currentTag == CurrentTag.CLASS && qName.equals(FIELDS_TAG)) {
+        } else if (isValidFieldsTag(tag)) {
             currentTag = CurrentTag.FIELDS;
-        } else if (currentTag == CurrentTag.FIELDS && qName.equals(FIELD_TAG) && atts.getValue(CLASS_NAME_ATTRIBUTE) != null) {
+        } else if (isValidFieldTag(tag, attributes)) {
             currentTag = CurrentTag.FIELD;
-            currentFieldName = atts.getValue(CLASS_NAME_ATTRIBUTE);
+            currentFieldName = attributes.getValue(FIELD_NAME_ATTRIBUTE);
         }
     }
 
+    private boolean isValidClassTag(String tag, Attributes attributes) {
+        return currentTag == CurrentTag.UNDEFINED && tag.equals(CLASS_TAG) && attributes.getValue(CLASS_NAME_ATTRIBUTE) != null;
+    }
+
+    private boolean isValidFieldsTag(String tag) {
+        return currentTag == CurrentTag.CLASS && tag.equals(FIELDS_TAG);
+    }
+
+    private boolean isValidFieldTag(String tag, Attributes attributes) {
+        return currentTag == CurrentTag.FIELDS && tag.equals(FIELD_TAG) && attributes.getValue(FIELD_NAME_ATTRIBUTE) != null;
+    }
+
     @Override
-    public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-        if (currentTag == CurrentTag.FIELD) {
-            currentTag = CurrentTag.FIELDS;
-        } else if (currentTag == CurrentTag.FIELDS) {
-            currentTag = CurrentTag.CLASS;;
-        } else if (currentTag == CurrentTag.CLASS) {
-            currentTag = CurrentTag.UNDEFINED;;
+    public void endElement(String namespaceURI, String localName, String tag) throws SAXException {
+        switch (currentTag) {
+            case FIELD:
+                currentTag = CurrentTag.FIELDS;
+                break;
+            case FIELDS:
+                currentTag = CurrentTag.CLASS;
+                break;
+            case CLASS:
+                currentTag = CurrentTag.UNDEFINED;
+                break;
         }
     }
 

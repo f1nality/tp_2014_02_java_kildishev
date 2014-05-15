@@ -13,7 +13,6 @@ import static org.mockito.Mockito.*;
  * @author d.kildishev
  */
 public class SignInTest extends MessageSystemTest {
-    //TODO: добавить инкапсулировать, смотреть не пуста ли очередь (test only method)
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -44,11 +43,10 @@ public class SignInTest extends MessageSystemTest {
             } catch (WantedButNotInvoked e) { }
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) { }
         }
 
-        System.out.println(argument.getValue());
         return argument.getValue();
     }
 }

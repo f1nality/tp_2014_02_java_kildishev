@@ -29,10 +29,10 @@ public class ResourceFactory {
         Iterator<String> iterator = vfs.getIterator("");
 
         while (iterator.hasNext()) {
-            String object = iterator.next();
+            String filePath = iterator.next();
 
-            if (object.endsWith(".xml")) {
-                loadXmlClassResource(object);
+            if (filePath.endsWith(".xml")) {
+                loadXmlClassResource(filePath);
             }
         }
     }

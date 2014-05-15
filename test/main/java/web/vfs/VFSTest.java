@@ -33,7 +33,7 @@ public class VFSTest {
 
         while (iterator.hasNext()) {
             String object = iterator.next();
-            System.out.println(object);
+
             Assert.assertEquals(object, expectedContents.get(i++));
         }
 

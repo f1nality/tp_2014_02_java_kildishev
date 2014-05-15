@@ -48,12 +48,12 @@ public class Main {
         context.addServlet(new ServletHolder(frontend), "/*");
 
         ResourceHandler resource_handler = new ResourceHandler();
-        resource_handler.setResourceBase("static");
+        resource_handler.setResourceBase(configuration.resourceBase);
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{resource_handler, context});
 
-        Server server = new Server(Integer.parseInt(configuration.port));
+        Server server = new Server(configuration.port);
 
         server.setHandler(handlers);
         server.start();

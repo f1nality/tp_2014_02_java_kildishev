@@ -32,8 +32,25 @@ public class XmlClassParser {
 
                         for (String fieldName : handler.getFields().keySet()) {
                             Field field = cls.getField(fieldName);
-
-                            field.set(obj, handler.getFields().get(fieldName));
+                            String str = handler.getFields().get(fieldName);
+//todo:tests
+                            if (field.getType() == int.class || field.getType() == Integer.class) {
+                                field.set(obj, Integer.parseInt(str));
+                            } else if (field.getType() == long.class || field.getType() == Long.class) {
+                                field.set(obj, Long.parseLong(str));
+                            } else if (field.getType() == short.class || field.getType() == Short.class) {
+                                field.set(obj, Short.parseShort(str));
+                            } else if (field.getType() == boolean.class || field.getType() == Boolean.class) {
+                                field.set(obj, Boolean.parseBoolean(str));
+                            } else if (field.getType() == double.class || field.getType() == Double.class) {
+                                field.set(obj, Double.parseDouble(str));
+                            } else if (field.getType() == float.class || field.getType() == Float.class) {
+                                field.set(obj, Float.parseFloat(str));
+                            } else if (field.getType() == char.class && str.length() > 0) {
+                                field.set(obj, str.charAt(0));
+                            } else if (field.getType() == String.class) {
+                                field.set(obj, str);
+                            }
                         }
 
                         return obj;

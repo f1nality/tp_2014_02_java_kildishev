@@ -2,5 +2,6 @@
 <class name="web.resourcesystem.Configuration">
 	<fields>
 		<field name="port">8080</field>
+        <field name="resourceBase">static</field>
 	</fields>
 </class>
