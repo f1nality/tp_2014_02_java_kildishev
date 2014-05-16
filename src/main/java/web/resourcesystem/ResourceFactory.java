@@ -48,7 +48,8 @@ public class ResourceFactory {
             return false;
         }
 
-        Object resource = new XmlClassParser().parse(str);
+        XmlClassParserHandler handler = new XmlClassParserHandler();
+        Object resource = new XmlClassParser().parse(str, handler);
 
         if (resource == null) {
             return false;

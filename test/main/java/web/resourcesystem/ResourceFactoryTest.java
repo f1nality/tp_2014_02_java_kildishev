@@ -1,22 +1,8 @@
 package web.resourcesystem;
 
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import web.accounts.AccountService;
-import web.accounts.SignUpCode;
-import web.db.AccountDAO;
-import web.db.HibernateUtil;
-import web.frontend.Frontend;
-import web.messagesystem.MessageSystem;
 
 /**
  * @author d.kildishev
@@ -34,7 +20,7 @@ public class ResourceFactoryTest {
         Configuration configuration = (Configuration)resourceFactory.getResource("config.xml");
 
         Assert.assertNotNull(configuration);
-        Assert.assertEquals(configuration.port, "80");
+        Assert.assertEquals(configuration.port, 7777);
     }
 
     @Test

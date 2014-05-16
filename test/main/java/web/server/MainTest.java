@@ -15,6 +15,7 @@ public class MainTest {
 
             Assert.assertTrue(server.isRunning());
         } catch (Exception e) {
+            e.printStackTrace();
             Assert.assertTrue(false);
         }
     }

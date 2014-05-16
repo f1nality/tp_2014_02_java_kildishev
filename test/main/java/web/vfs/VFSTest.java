@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +28,7 @@ public class VFSTest {
 
         expectedContents.add("config.xml");
         expectedContents.add("directory");
-        expectedContents.add("directory\\dummy.txt");
+        expectedContents.add("directory" + File.separator + "dummy.txt");
 
         Assert.assertNotNull(iterator);
 
@@ -54,6 +55,6 @@ public class VFSTest {
 
     @Test
     public void testGetUFT8Text() throws Exception {
-        Assert.assertEquals("dummy", vfs.getUFT8Text("directory\\dummy.txt"));
+        Assert.assertEquals("dummy", vfs.getUFT8Text("directory" + File.separator + "dummy.txt"));
     }
 }

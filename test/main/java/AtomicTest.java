@@ -29,7 +29,7 @@ public class AtomicTest extends Thread {
         Assert.assertNotEquals(i, iAtomic);
     }
 
-    public class Incrementer extends Thread {
+    private static class Incrementer extends Thread {
         public void run() {
             while (iAtomic.get() < 100000000) {
                 ++i;

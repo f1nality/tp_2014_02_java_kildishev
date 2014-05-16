@@ -2,6 +2,7 @@ package web.resourcesystem;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -14,15 +15,13 @@ import java.lang.reflect.Field;
  * @author d.kildishev
  */
 public class XmlClassParser {
-    public Object parse(String xml) {
+    public Object parse(String xml, XmlClassParserHandler handler) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
             InputSource source = new InputSource(new StringReader(xml));
 
             try {
-                XmlClassParserHandler handler = new XmlClassParserHandler();
-
                 parser.parse(source, handler);
 
                 if (handler.getClassName() != null) {
@@ -33,7 +32,7 @@ public class XmlClassParser {
                         for (String fieldName : handler.getFields().keySet()) {
                             Field field = cls.getField(fieldName);
                             String str = handler.getFields().get(fieldName);
-//todo:tests
+
                             if (field.getType() == int.class || field.getType() == Integer.class) {
                                 field.set(obj, Integer.parseInt(str));
                             } else if (field.getType() == long.class || field.getType() == Long.class) {

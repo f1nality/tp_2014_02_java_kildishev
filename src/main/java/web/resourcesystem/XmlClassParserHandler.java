@@ -34,7 +34,7 @@ public class XmlClassParserHandler extends DefaultHandler {
     public Map<String, String> getFields() {
         return fields;
     }
-//todo:add test
+
     @Override
     public void startElement(String namespaceURI, String localName, String tag, Attributes attributes) throws SAXException {
         if (isValidClassTag(tag, attributes)) {
