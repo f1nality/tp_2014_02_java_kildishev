@@ -20,7 +20,7 @@ public class FunctionalTest {
 
     @Before
     public void setUp() throws Exception {
-        server = Main.runWebServer();
+        server = Main.runWebServer(80, "static");
 
         Assert.assertNotNull(server);
     }

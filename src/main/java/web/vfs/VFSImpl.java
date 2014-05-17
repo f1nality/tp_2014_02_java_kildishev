@@ -68,14 +68,13 @@ public class VFSImpl implements VFS {
 	}
 
     private byte[] getBytes(String file, String encoding) {
-        InputStreamReader inputStream = null;
-        byte[] result = null;
+        byte[] result;
 
-        try {
-            FileInputStream fileInputStream = new FileInputStream(root + file);
+        try (FileInputStream fileInputStream = new FileInputStream(root + file)) {
+            InputStreamReader inputStream;
 
             if (encoding != null) {
-                inputStream = new InputStreamReader(fileInputStream, "UTF-8");
+                inputStream = new InputStreamReader(fileInputStream, encoding);
             } else {
                 inputStream = new InputStreamReader(fileInputStream);
             }
@@ -84,12 +83,6 @@ public class VFSImpl implements VFS {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) { }
-            }
         }
 
         return result;

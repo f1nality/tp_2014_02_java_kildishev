@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <class name="web.resourcesystem.Configuration">
 	<fields>
-		<field name="port">8080</field>
+		<field name="port">8081</field>
         <field name="resourceBase">static</field>
 	</fields>
 </class>

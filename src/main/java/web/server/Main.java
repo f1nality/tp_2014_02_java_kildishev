@@ -17,7 +17,14 @@ import web.resourcesystem.ResourceFactory;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
-        Server server = runWebServer();
+        ResourceFactory resourceFactory = ResourceFactory.instance("resources/");
+        Configuration configuration = (Configuration)resourceFactory.getResource("config.xml");
+
+        if (configuration == null) {
+            return;
+        }
+
+        Server server = runWebServer(configuration.port, configuration.resourceBase);
 
         if (server == null) {
             return;
@@ -26,14 +33,7 @@ public class Main {
         server.join();
     }
 
-    public static Server runWebServer() throws Exception {
-        ResourceFactory resourceFactory = ResourceFactory.instance("resources/");
-        Configuration configuration = (Configuration)resourceFactory.getResource("config.xml");
-
-        if (configuration == null) {
-            return null;
-        }
-
+    public static Server runWebServer(int port, String resourceBase) throws Exception {
         MessageSystem ms = new MessageSystem();
         AccountService accountService1 = new AccountService(ms, "hibernate.cfg.xml");
         AccountService accountService2 = new AccountService(ms, "hibernate.cfg.xml");
@@ -48,12 +48,12 @@ public class Main {
         context.addServlet(new ServletHolder(frontend), "/*");
 
         ResourceHandler resource_handler = new ResourceHandler();
-        resource_handler.setResourceBase(configuration.resourceBase);
+        resource_handler.setResourceBase(resourceBase);
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{resource_handler, context});
 
-        Server server = new Server(configuration.port);
+        Server server = new Server(port);
 
         server.setHandler(handlers);
         server.start();
